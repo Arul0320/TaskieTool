@@ -1,0 +1,8 @@
+{
+  "name": "Remix: Kanban Task Manager",
+  "description": "A full-featured Kanban board and task management tool with workspaces, roles, interactive dashboards, and drag-and-drop workflow tracking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
