@@ -1,0 +1,17 @@
+{
+  "users": [
+    {
+      "id": "user-1787160330047",
+      "username": "Sam",
+      "email": "arulrani2002@gmail.com",
+      "role": "Teacher",
+      "avatarColor": "#ec4899",
+      "joinedAt": "2026-08-19T17:25:30.048Z"
+    }
+  ],
+  "workspaces": [],
+  "boards": [],
+  "lists": [],
+  "cards": [],
+  "globalLogs": []
+}
