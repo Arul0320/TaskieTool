@@ -114,7 +114,8 @@ CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:3000',
     os.getenv('FRONTEND_URL', 'http://localhost:5173'),
     "https://my-project.vercel.app",
-
+    "https://task-flow-sam-8404.vercel.app",    
+    "https://frontend-phi-amber.vercel.app"
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -125,3 +126,6 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'Student Activity Tracking System API',
     'VERSION': '1.0.0',
 }
+ALLOWED_HOSTS = [
+    "your-backend.onrender.com",
+]
