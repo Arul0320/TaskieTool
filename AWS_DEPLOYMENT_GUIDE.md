@@ -58,7 +58,7 @@ The deployed application runs in production-grade containers behind an **Nginx R
 If your repository is on GitHub / GitLab:
 ```bash
 # On your EC2 terminal:
-git clone https://github.com/<YOUR_USERNAME>/TaskieTool.git taskietool
+git clone https://github.com/Arul0320/TaskieTool.git taskietool
 cd taskietool
 ```
 

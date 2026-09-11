@@ -31,13 +31,16 @@ usermod -aG docker ubuntu
 # 4. Install Docker Compose plugin
 apt-get install -y docker-compose-plugin
 
-# 5. Clone repository or deploy code (replace with your repo URL if using Git)
+# 5. Clone repository and run automated deployment
 mkdir -p /home/ubuntu/taskietool
 cd /home/ubuntu/taskietool
 
-# If deploying from GitHub:
-# git clone https://github.com/<YOUR_USERNAME>/<YOUR_REPO>.git .
-# chmod +x deploy_aws.sh
-# ./deploy_aws.sh
+# Clone repository
+git clone https://github.com/Arul0320/TaskieTool.git .
+chown -R ubuntu:ubuntu /home/ubuntu/taskietool
+chmod +x deploy_aws.sh
+
+# Run automated deployment
+sudo -u ubuntu ./deploy_aws.sh
 
 echo "✅ AWS EC2 Initialization Complete. Ready for deployment."
