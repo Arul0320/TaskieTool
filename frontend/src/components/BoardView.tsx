@@ -15,7 +15,8 @@ import {
   User as UserIcon, 
   Tag, 
   AlertCircle,
-  Columns
+  Columns,
+  X
 } from "lucide-react";
 import { Board, List, Card, User, CardPriority } from "../types";
 
@@ -96,7 +97,7 @@ export default function BoardView({
     if (!user) return { initials: "UN", color: "#64748b", name: "Unassigned" };
     return {
       initials: user.username.split(" ").map(n => n[0]).join("").toUpperCase().substring(0, 2),
-      color: user.avatarColor,
+      color: user.avatarColor || "#6366f1",
       name: user.username
     };
   };
@@ -171,55 +172,59 @@ export default function BoardView({
     return dueDateStr < today;
   };
 
+  const hasActiveFilters = Boolean(searchText || filterAssignee || filterPriority || filterLabel);
+
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] bg-slate-50 overflow-hidden select-none">
+    <div className="flex flex-col h-[calc(100vh-3.5rem-4rem)] md:h-[calc(100vh-4rem)] bg-[#090d16] select-none overflow-hidden">
       
-      {/* Board Header Metadata & Controls */}
-      <div className="bg-white border-b border-slate-200 py-3.5 px-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs flex-shrink-0 z-10">
-        <div className="space-y-1 max-w-xl">
-          <div className="flex items-center gap-3">
-            <h1 className="text-xl font-sans font-bold text-slate-800 tracking-tight truncate">
+      {/* Board Top Control Bar */}
+      <div className="py-2.5 sm:py-3 px-3 sm:px-6 lg:px-8 border-b border-white/[0.08] bg-slate-900/60 backdrop-blur-xl flex flex-col md:flex-row md:items-center justify-between gap-2.5 sm:gap-3 shadow-md z-10 flex-shrink-0">
+        
+        {/* Left Side: Board Title & Meta */}
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2">
+            <h1 className="text-base sm:text-lg md:text-xl font-display font-extrabold text-white tracking-tight truncate max-w-[200px] sm:max-w-none">
               {board.name}
             </h1>
             <button
               onClick={() => onToggleFavorite(board.id, board.isFavorite)}
-              className="text-slate-300 hover:text-amber-400 p-1 rounded-full hover:bg-slate-50 transition cursor-pointer"
+              className="p-1 rounded-lg text-slate-500 hover:text-amber-400 hover:bg-white/[0.06] transition cursor-pointer flex-shrink-0"
+              title={board.isFavorite ? "Remove favorite" : "Mark favorite"}
             >
-              <Star className={`w-4 h-4 ${board.isFavorite ? "fill-amber-400 text-amber-400" : ""}`} />
+              <Star className={`w-4 h-4 transition duration-200 ${board.isFavorite ? "fill-amber-400 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]" : ""}`} />
             </button>
           </div>
+
           {board.description && (
-            <p className="text-xs text-slate-500 truncate max-w-md md:max-w-xl">
+            <span className="text-xs text-slate-400 border-l border-white/[0.1] pl-3 max-w-sm truncate hidden sm:inline">
               {board.description}
-            </p>
+            </span>
           )}
         </div>
 
-        {/* Filters Controls Section */}
-        <div className="flex flex-wrap items-center gap-2.5 text-xs">
+        {/* Right Side: Search & Filter Pills */}
+        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 md:pb-0 w-full md:w-auto">
           {/* Search box */}
-          <div className="relative">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
+          <div className="relative flex-shrink-0">
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
             <input
               type="text"
-              placeholder="Search cards..."
+              placeholder="Search..."
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              className="pl-8 pr-3 py-1.5 w-44 md:w-56 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition"
+              className="pl-8 pr-3 py-1.5 w-32 sm:w-44 lg:w-48 bg-white/[0.04] hover:bg-white/[0.07] border border-white/[0.1] focus:border-indigo-500/60 focus:bg-slate-900 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 transition"
             />
           </div>
-
-          <div className="h-6 w-px bg-slate-200 mx-0.5"></div>
 
           {/* Assignee Filter */}
           <select
             value={filterAssignee}
             onChange={(e) => setFilterAssignee(e.target.value)}
-            className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-600 focus:outline-none focus:border-indigo-500 transition cursor-pointer"
+            className="px-2 sm:px-2.5 py-1.5 bg-white/[0.04] hover:bg-white/[0.07] border border-white/[0.1] focus:border-indigo-500/60 rounded-xl text-xs text-slate-300 focus:outline-none cursor-pointer transition flex-shrink-0"
           >
-            <option value="">All Assignees</option>
+            <option value="" className="bg-slate-900 text-slate-300">Assignees</option>
             {users.map(u => (
-              <option key={u.id} value={u.id}>{u.username}</option>
+              <option key={u.id} value={u.id} className="bg-slate-900 text-slate-300">{u.username}</option>
             ))}
           </select>
 
@@ -227,29 +232,31 @@ export default function BoardView({
           <select
             value={filterPriority}
             onChange={(e) => setFilterPriority(e.target.value)}
-            className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-600 focus:outline-none focus:border-indigo-500 transition cursor-pointer"
+            className="px-2 sm:px-2.5 py-1.5 bg-white/[0.04] hover:bg-white/[0.07] border border-white/[0.1] focus:border-indigo-500/60 rounded-xl text-xs text-slate-300 focus:outline-none cursor-pointer transition flex-shrink-0"
           >
-            <option value="">All Priorities</option>
-            <option value="Low">Low</option>
-            <option value="Medium">Medium</option>
-            <option value="High">High</option>
-            <option value="Urgent">Urgent</option>
+            <option value="" className="bg-slate-900 text-slate-300">Priorities</option>
+            <option value="Urgent" className="bg-slate-900 text-rose-300">Urgent</option>
+            <option value="High" className="bg-slate-900 text-amber-300">High</option>
+            <option value="Medium" className="bg-slate-900 text-sky-300">Medium</option>
+            <option value="Low" className="bg-slate-900 text-emerald-300">Low</option>
           </select>
 
           {/* Label Filter */}
-          <select
-            value={filterLabel}
-            onChange={(e) => setFilterLabel(e.target.value)}
-            className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-600 focus:outline-none focus:border-indigo-500 transition cursor-pointer"
-          >
-            <option value="">All Labels</option>
-            {allLabels.map(l => (
-              <option key={l} value={l}>{l}</option>
-            ))}
-          </select>
+          {allLabels.length > 0 && (
+            <select
+              value={filterLabel}
+              onChange={(e) => setFilterLabel(e.target.value)}
+              className="px-2 sm:px-2.5 py-1.5 bg-white/[0.04] hover:bg-white/[0.07] border border-white/[0.1] focus:border-indigo-500/60 rounded-xl text-xs text-slate-300 focus:outline-none cursor-pointer transition flex-shrink-0"
+            >
+              <option value="" className="bg-slate-900 text-slate-300">Labels</option>
+              {allLabels.map(l => (
+                <option key={l} value={l} className="bg-slate-900 text-slate-300">{l}</option>
+              ))}
+            </select>
+          )}
 
-          {/* Reset Filters button */}
-          {(searchText || filterAssignee || filterPriority || filterLabel) ? (
+          {/* Clear Filters */}
+          {hasActiveFilters && (
             <button
               onClick={() => {
                 setSearchText("");
@@ -257,28 +264,29 @@ export default function BoardView({
                 setFilterPriority("");
                 setFilterLabel("");
               }}
-              className="text-[11px] font-bold text-indigo-600 hover:text-indigo-500 hover:underline px-1 py-1 cursor-pointer"
+              className="flex items-center gap-1 px-2 py-1.5 text-xs font-semibold text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-xl transition cursor-pointer flex-shrink-0"
             >
-              Clear Filters
+              <X className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Reset</span>
             </button>
-          ) : null}
+          )}
         </div>
       </div>
 
-      {/* Kanban Board Container (Horizontal Scrollable Column List) */}
-      <div className="flex-1 overflow-x-auto overflow-y-hidden px-6 py-5 flex items-start gap-4">
+      {/* Kanban Board Container (Horizontal Scrollable Column List with Mobile Snap) */}
+      <div className="flex-1 overflow-x-auto overflow-y-hidden px-3 sm:px-6 lg:px-8 py-4 sm:py-6 flex items-start gap-4 sm:gap-5 snap-x snap-mandatory sm:snap-none">
         {lists.map((list, listIdx) => {
           const listCards = filteredCards.filter(c => c.listId === list.id);
 
           return (
             <div
               key={list.id}
-              className="w-72 bg-slate-100 rounded-2xl flex flex-col max-h-full border border-slate-200/60 shadow-xs flex-shrink-0"
+              className="w-[82vw] sm:w-80 max-w-[340px] bg-slate-900/60 backdrop-blur-xl rounded-2xl flex flex-col max-h-full border border-white/[0.08] shadow-2xl flex-shrink-0 snap-center sm:snap-align-none"
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, list.id, listCards.length)}
             >
               {/* Column Header */}
-              <div className="p-3.5 flex items-center justify-between border-b border-slate-200/40 bg-slate-100 rounded-t-2xl flex-shrink-0">
+              <div className="p-3.5 flex items-center justify-between border-b border-white/[0.06] bg-white/[0.02] rounded-t-2xl flex-shrink-0">
                 {editingListId === list.id ? (
                   <div className="flex items-center gap-1.5 w-full">
                     <input
@@ -288,7 +296,7 @@ export default function BoardView({
                       onBlur={() => handleSaveRename(list.id)}
                       onKeyDown={(e) => e.key === "Enter" && handleSaveRename(list.id)}
                       autoFocus
-                      className="bg-white border border-slate-300 rounded px-2 py-1 text-sm font-semibold text-slate-800 w-full focus:outline-none focus:border-indigo-500"
+                      className="bg-slate-800 border border-indigo-500/60 rounded-lg px-2.5 py-1 text-xs font-semibold text-white w-full focus:outline-none"
                     />
                   </div>
                 ) : (
@@ -298,11 +306,12 @@ export default function BoardView({
                         setEditingListId(list.id);
                         setEditingListName(list.name);
                       }}
-                      className="text-sm font-bold text-slate-800 hover:bg-slate-200/50 px-1.5 py-0.5 rounded cursor-pointer transition truncate"
+                      className="text-xs font-display font-bold text-white hover:bg-white/[0.08] px-2 py-0.5 rounded-lg cursor-pointer transition truncate"
+                      title="Click to rename"
                     >
                       {list.name}
                     </h2>
-                    <span className="text-[11px] font-bold bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded-full">
+                    <span className="text-[10px] font-mono font-bold bg-white/[0.08] text-indigo-300 px-2 py-0.5 rounded-full border border-white/[0.06]">
                       {listCards.length}
                     </span>
                   </div>
@@ -313,7 +322,7 @@ export default function BoardView({
                   <button
                     disabled={listIdx === 0}
                     onClick={() => moveList(listIdx, "left")}
-                    className="p-1 hover:bg-slate-200 hover:text-slate-600 rounded disabled:opacity-20 transition cursor-pointer"
+                    className="p-1 hover:bg-white/[0.08] hover:text-white rounded-lg disabled:opacity-20 transition cursor-pointer"
                     title="Move Left"
                   >
                     <ChevronLeft className="w-3.5 h-3.5" />
@@ -321,7 +330,7 @@ export default function BoardView({
                   <button
                     disabled={listIdx === lists.length - 1}
                     onClick={() => moveList(listIdx, "right")}
-                    className="p-1 hover:bg-slate-200 hover:text-slate-600 rounded disabled:opacity-20 transition cursor-pointer"
+                    className="p-1 hover:bg-white/[0.08] hover:text-white rounded-lg disabled:opacity-20 transition cursor-pointer"
                     title="Move Right"
                   >
                     <ChevronRight className="w-3.5 h-3.5" />
@@ -332,7 +341,7 @@ export default function BoardView({
                         onDeleteList(list.id);
                       }
                     }}
-                    className="p-1 hover:bg-rose-50 hover:text-rose-500 rounded transition cursor-pointer"
+                    className="p-1 hover:bg-rose-500/20 hover:text-rose-400 rounded-lg transition cursor-pointer"
                     title="Delete Column"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -342,7 +351,7 @@ export default function BoardView({
 
               {/* Column Cards vertical stack */}
               <div 
-                className="flex-1 overflow-y-auto p-2.5 space-y-2.5 min-h-[150px]"
+                className="flex-1 overflow-y-auto p-3 space-y-3 min-h-[160px]"
                 onDragOver={handleDragOver}
               >
                 {listCards.map((card, cardIdx) => {
@@ -350,6 +359,7 @@ export default function BoardView({
                   const isCardOverdue = isOverdue(card.dueDate || "", list.name);
                   const totalChecklist = card.checklist ? card.checklist.length : 0;
                   const doneChecklist = card.checklist ? card.checklist.filter(i => i.isDone).length : 0;
+                  const checklistProgress = totalChecklist > 0 ? (doneChecklist / totalChecklist) * 100 : 0;
 
                   return (
                     <div
@@ -362,15 +372,15 @@ export default function BoardView({
                         handleDrop(e, list.id, cardIdx);
                       }}
                       onClick={() => onCardClick(card.id)}
-                      className="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-xs hover:shadow-md hover:border-indigo-200 transition duration-150 cursor-pointer space-y-2.5 group relative"
+                      className="bg-slate-800/80 hover:bg-slate-800 border border-white/[0.08] hover:border-indigo-500/50 rounded-xl p-3.5 transition duration-150 cursor-pointer space-y-2.5 group relative shadow-md hover:shadow-indigo-500/10 hover:-translate-y-0.5"
                     >
-                      {/* Top label list */}
+                      {/* Top label pills */}
                       {card.labels && card.labels.length > 0 && (
                         <div className="flex flex-wrap gap-1">
                           {card.labels.map(label => (
                             <span 
                               key={label}
-                              className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-100"
+                              className="px-2 py-0.5 rounded-md text-[9px] font-bold bg-indigo-500/15 text-indigo-300 border border-indigo-500/25 tracking-wider"
                             >
                               {label}
                             </span>
@@ -379,50 +389,62 @@ export default function BoardView({
                       )}
 
                       {/* Card Title */}
-                      <h3 className="text-xs font-bold text-slate-800 leading-snug line-clamp-2">
+                      <h3 className="text-xs font-semibold text-white group-hover:text-indigo-200 transition line-clamp-2 leading-snug">
                         {card.title}
                       </h3>
 
                       {/* Card Description preview */}
                       {card.description && (
-                        <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">
+                        <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
                           {card.description}
                         </p>
                       )}
 
-                      {/* Bottom row badges & Assignee */}
-                      <div className="flex items-center justify-between pt-1 border-t border-slate-100">
-                        <div className="flex flex-wrap items-center gap-2 text-[10px] text-slate-400 font-semibold">
+                      {/* Checklist Mini Progress Bar */}
+                      {totalChecklist > 0 && (
+                        <div className="space-y-1">
+                          <div className="w-full bg-slate-900 rounded-full h-1 overflow-hidden">
+                            <div
+                              className="bg-gradient-to-r from-indigo-500 to-emerald-400 h-1 rounded-full transition-all duration-300"
+                              style={{ width: `${checklistProgress}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Bottom Row Badges & Assignee */}
+                      <div className="flex items-center justify-between pt-2 border-t border-white/[0.06]">
+                        <div className="flex flex-wrap items-center gap-2 text-[10px] font-semibold text-slate-400">
                           
-                          {/* Priority Indicator */}
-                          <span className={`px-1.5 py-0.5 rounded-md text-[10px] uppercase font-bold tracking-wider ${
+                          {/* Priority Pill */}
+                          <span className={`px-1.5 py-0.5 rounded text-[9px] uppercase font-bold tracking-wider ${
                             card.priority === "Urgent"
-                              ? "bg-red-100 text-red-700 border border-red-200"
+                              ? "bg-rose-500/20 text-rose-300 border border-rose-500/30"
                               : card.priority === "High" 
-                                ? "bg-rose-50 text-rose-500 border border-rose-100" 
+                                ? "bg-amber-500/20 text-amber-300 border border-amber-500/30" 
                                 : card.priority === "Medium"
-                                  ? "bg-amber-50 text-amber-600 border border-amber-100"
-                                  : "bg-slate-50 text-slate-500 border border-slate-200/50"
+                                  ? "bg-sky-500/20 text-sky-300 border border-sky-500/30"
+                                  : "bg-slate-700/50 text-slate-300 border border-slate-600/30"
                           }`}>
                             {card.priority || "Medium"}
                           </span>
 
                           {/* Due Date Alarm Indicator */}
                           {card.dueDate && (
-                            <span className={`flex items-center gap-1 px-1.5 py-0.5 rounded-md border ${
+                            <span className={`flex items-center gap-1 px-1.5 py-0.5 rounded border text-[9px] ${
                               isCardOverdue 
-                                ? "bg-rose-50 text-rose-600 border-rose-100 font-bold" 
-                                : "bg-slate-50 text-slate-500 border-slate-200/50"
+                                ? "bg-rose-500/20 text-rose-300 border-rose-500/30 font-bold" 
+                                : "bg-white/[0.04] text-slate-400 border-white/[0.08]"
                             }`}>
-                              <Clock className="w-3 h-3" />
+                              <Clock className="w-2.5 h-2.5" />
                               <span>{card.dueDate.substring(5)}</span>
                             </span>
                           )}
 
-                          {/* Checklist progress */}
+                          {/* Checklist progress counter */}
                           {totalChecklist > 0 && (
-                            <span className={`flex items-center gap-1 ${doneChecklist === totalChecklist ? "text-emerald-600 font-bold" : "text-slate-400"}`}>
-                              <CheckSquare className="w-3.5 h-3.5" />
+                            <span className={`flex items-center gap-1 ${doneChecklist === totalChecklist ? "text-emerald-400 font-bold" : "text-slate-400"}`}>
+                              <CheckSquare className="w-3 h-3" />
                               <span>{doneChecklist}/{totalChecklist}</span>
                             </span>
                           )}
@@ -430,7 +452,7 @@ export default function BoardView({
                           {/* Comments count */}
                           {card.comments && card.comments.length > 0 && (
                             <span className="flex items-center gap-1">
-                              <MessageSquare className="w-3.5 h-3.5" />
+                              <MessageSquare className="w-3 h-3" />
                               <span>{card.comments.length}</span>
                             </span>
                           )}
@@ -446,7 +468,7 @@ export default function BoardView({
 
                         {/* Assignee Avatar */}
                         <div 
-                          className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white border border-white shadow-xs flex-shrink-0"
+                          className="w-6 h-6 rounded-lg flex items-center justify-center text-[9px] font-bold text-white ring-1 ring-white/10 shadow-sm flex-shrink-0"
                           style={{ backgroundColor: assignee.color }}
                           title={assignee.name}
                         >
@@ -459,8 +481,8 @@ export default function BoardView({
                 })}
               </div>
 
-              {/* Column bottom section - Quick add card */}
-              <div className="p-2 border-t border-slate-200/40 bg-slate-100 rounded-b-2xl">
+              {/* Column Bottom Section - Quick Add Card */}
+              <div className="p-2.5 border-t border-white/[0.06] bg-white/[0.02] rounded-b-2xl">
                 {addingCardListId === list.id ? (
                   <form onSubmit={(e) => handleAddCardSubmit(e, list.id)} className="space-y-2">
                     <input
@@ -470,19 +492,19 @@ export default function BoardView({
                       onChange={(e) => setNewCardTitle(e.target.value)}
                       required
                       autoFocus
-                      className="w-full bg-white border border-slate-300 rounded-lg p-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                      className="w-full bg-slate-800/90 border border-indigo-500/60 rounded-xl p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/40"
                     />
-                    <div className="flex gap-1.5 justify-end">
+                    <div className="flex gap-2 justify-end">
                       <button
                         type="button"
                         onClick={() => setAddingCardListId(null)}
-                        className="px-2.5 py-1 text-[11px] font-semibold text-slate-500 hover:bg-slate-200 rounded-lg transition cursor-pointer"
+                        className="px-3 py-1 text-xs font-semibold text-slate-400 hover:bg-white/[0.06] hover:text-white rounded-lg transition cursor-pointer"
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
-                        className="px-3 py-1 text-[11px] font-semibold bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition cursor-pointer"
+                        className="px-3.5 py-1 text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg shadow-md shadow-indigo-600/25 transition cursor-pointer"
                       >
                         Add Task
                       </button>
@@ -494,9 +516,9 @@ export default function BoardView({
                       setAddingCardListId(list.id);
                       setNewCardTitle("");
                     }}
-                    className="w-full flex items-center justify-center gap-1.5 py-2 hover:bg-slate-200/60 rounded-xl text-slate-500 text-xs font-semibold cursor-pointer transition"
+                    className="w-full flex items-center justify-center gap-1.5 py-2 hover:bg-white/[0.06] rounded-xl text-slate-400 hover:text-white text-xs font-semibold cursor-pointer transition"
                   >
-                    <Plus className="w-3.5 h-3.5 text-slate-400" />
+                    <Plus className="w-3.5 h-3.5 text-indigo-400" />
                     <span>Add Task Card</span>
                   </button>
                 )}
@@ -506,9 +528,9 @@ export default function BoardView({
         })}
 
         {/* Add Column Button inside main scrollable viewport */}
-        <div className="w-72 flex-shrink-0">
+        <div className="w-[82vw] sm:w-80 max-w-[340px] flex-shrink-0 snap-center sm:snap-align-none">
           {newListFormOpen ? (
-            <form onSubmit={handleAddListSubmit} className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs space-y-3 animate-in fade-in duration-150">
+            <form onSubmit={handleAddListSubmit} className="bg-slate-900/80 backdrop-blur-xl rounded-2xl p-4 border border-white/[0.12] shadow-xl space-y-3 animate-in fade-in duration-150">
               <input
                 type="text"
                 placeholder="Column name (e.g. Backlog, Testing)"
@@ -516,19 +538,19 @@ export default function BoardView({
                 onChange={(e) => setNewListName(e.target.value)}
                 required
                 autoFocus
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition"
+                className="w-full bg-slate-800 border border-white/[0.1] focus:border-indigo-500/60 rounded-xl p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none transition"
               />
               <div className="flex gap-2 justify-end">
                 <button
                   type="button"
                   onClick={() => setNewListFormOpen(false)}
-                  className="px-3 py-1.5 text-xs font-semibold text-slate-500 hover:bg-slate-100 rounded-lg transition cursor-pointer"
+                  className="px-3 py-1.5 text-xs font-semibold text-slate-400 hover:bg-white/[0.06] rounded-lg transition cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg shadow-xs transition cursor-pointer"
+                  className="px-4 py-1.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg shadow-md shadow-indigo-600/30 transition cursor-pointer"
                 >
                   Create Column
                 </button>
@@ -540,9 +562,9 @@ export default function BoardView({
                 setNewListFormOpen(true);
                 setNewListName("");
               }}
-              className="w-full flex items-center justify-center gap-2 py-3.5 bg-slate-200/40 hover:bg-slate-200/70 text-slate-600 border border-dashed border-slate-300 hover:border-slate-400 rounded-2xl text-xs font-bold cursor-pointer transition duration-150"
+              className="w-full flex items-center justify-center gap-2 py-4 bg-white/[0.03] hover:bg-white/[0.06] text-slate-300 hover:text-white border border-dashed border-white/[0.12] hover:border-indigo-500/40 rounded-2xl text-xs font-bold cursor-pointer transition duration-150 group"
             >
-              <Plus className="w-4 h-4 text-slate-500" />
+              <Plus className="w-4 h-4 text-indigo-400 group-hover:rotate-90 transition duration-200" />
               <span>Add Custom Column</span>
             </button>
           )}

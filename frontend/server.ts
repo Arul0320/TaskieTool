@@ -18,8 +18,12 @@ import {
 } from "./src/types.js";
 
 const app = express();
-const PORT = 3000;
-const DB_FILE = path.join(process.cwd(), "db.json");
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+const DB_FILE = process.env.DB_PATH || path.join(process.cwd(), "db.json");
+const dbDir = path.dirname(DB_FILE);
+if (!fs.existsSync(dbDir)) {
+  fs.mkdirSync(dbDir, { recursive: true });
+}
 
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
@@ -801,13 +805,25 @@ app.get("/api/dashboard", (req, res) => {
 async function start() {
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        watch: {
+          ignored: ["**/db.json", "**/dist/**", "**/.git/**"]
+        }
+      },
       appType: "spa"
     });
     app.use(vite.middlewares);
     console.log("Vite development server middleware loaded.");
   } else {
     const distPath = path.join(process.cwd(), "dist");
+    // Protect server bundle files from direct web access
+    app.use((req, res, next) => {
+      if (req.path.startsWith("/server.cjs")) {
+        return res.status(404).end();
+      }
+      next();
+    });
     app.use(express.static(distPath));
     app.get("*", (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));

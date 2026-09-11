@@ -2,3 +2,35 @@ node_modules/
 dist/
 .env
 .env.local
+.env.*
+
+# Sensitive keys and credentials
+*.pem
+*.key
+*.cer
+*.crt
+
+# Python cache & virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+
+# Database & Media
+*.sqlite3
+backend/staticfiles/
+backend/media/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS and Editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

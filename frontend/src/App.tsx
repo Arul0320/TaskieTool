@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { Trello } from "lucide-react";
 import {
   User,
   Workspace,
@@ -19,12 +20,19 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]); // Courses/Programs
-  const [activeWorkspaceId, setActiveWorkspaceId] = useState<string | null>(null);
+  const [activeWorkspaceId, setActiveWorkspaceId] = useState<string | null>(() => {
+    return localStorage.getItem("taskflow_activeWorkspaceId") || null;
+  });
   const [boards, setBoards] = useState<Board[]>([]); // Activity trackers/Terms
-  const [activeBoardId, setActiveBoardId] = useState<string | null>(null);
+  const [activeBoardId, setActiveBoardId] = useState<string | null>(() => {
+    return localStorage.getItem("taskflow_activeBoardId") || null;
+  });
 
   // View Control
-  const [currentView, setCurrentView] = useState<"dashboard" | "board">("dashboard");
+  const [currentView, setCurrentView] = useState<"dashboard" | "board">(() => {
+    const saved = localStorage.getItem("taskflow_currentView");
+    return saved === "board" ? "board" : "dashboard";
+  });
   const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
 
   // Lists & Cards inside the Active Board
@@ -104,6 +112,12 @@ export default function App() {
       const data = await res.json();
       if (data.boards) {
         setBoards(data.boards);
+        setActiveBoardId(prev => {
+          if (prev && data.boards.some((b: Board) => b.id === prev)) {
+            return prev;
+          }
+          return data.boards.length > 0 ? data.boards[0].id : null;
+        });
       }
     } catch (err) {
       console.error("Error fetching boards:", err);
@@ -129,8 +143,38 @@ export default function App() {
   }, [activeBoardId]);
 
   // ----------------------------------------------------
-  // REACT LIFECYCLE EFFECT PIPELINES
+  // REACT LIFECYCLE EFFECT PIPELINES & PERSISTENCE
   // ----------------------------------------------------
+
+  // Sync state changes with localStorage
+  useEffect(() => {
+    if (activeWorkspaceId) {
+      localStorage.setItem("taskflow_activeWorkspaceId", activeWorkspaceId);
+    } else {
+      localStorage.removeItem("taskflow_activeWorkspaceId");
+    }
+  }, [activeWorkspaceId]);
+
+  useEffect(() => {
+    if (activeBoardId) {
+      localStorage.setItem("taskflow_activeBoardId", activeBoardId);
+    } else {
+      localStorage.removeItem("taskflow_activeBoardId");
+    }
+  }, [activeBoardId]);
+
+  useEffect(() => {
+    localStorage.setItem("taskflow_currentView", currentView);
+  }, [currentView]);
+
+  const handleSetView = (view: "dashboard" | "board") => {
+    if (view === "board") {
+      if (!activeBoardId && boards.length > 0) {
+        setActiveBoardId(boards[0].id);
+      }
+    }
+    setCurrentView(view);
+  };
 
   // 1. Initial Load Bootstrapper
   useEffect(() => {
@@ -621,14 +665,17 @@ export default function App() {
   // ----------------------------------------------------
 
   const activeWorkspace = workspaces.find(w => w.id === activeWorkspaceId) || null;
-  const activeBoard = boards.find(b => b.id === activeBoardId) || null;
+  const activeBoard = boards.find(b => b.id === activeBoardId) || (boards.length > 0 && currentView === "board" ? boards[0] : null);
   const activeCard = cards.find(c => c.id === activeCardId) || null;
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-slate-100">
-        <div className="w-10 h-10 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin mb-4"></div>
-        <p className="text-xs font-mono text-slate-400 animate-pulse">Loading KanbanFlow Session...</p>
+      <div className="min-h-screen bg-[#090d16] flex flex-col items-center justify-center p-6 text-slate-100 select-none">
+        <div className="relative flex items-center justify-center">
+          <div className="w-14 h-14 rounded-full border-2 border-indigo-500/20 border-t-indigo-500 animate-spin"></div>
+          <div className="w-8 h-8 rounded-full border-2 border-sky-400/20 border-b-sky-400 animate-spin absolute"></div>
+        </div>
+        <p className="text-xs font-mono text-slate-400 animate-pulse mt-4">Loading TaskieTool Workspace...</p>
       </div>
     );
   }
@@ -649,7 +696,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800">
+    <div className="min-h-screen bg-[#090d16] flex flex-col font-sans text-slate-100 selection:bg-indigo-500/30 selection:text-indigo-200">
 
       {/* Top Application Header Navbar */}
       <Navbar
@@ -658,9 +705,10 @@ export default function App() {
         workspaces={workspaces}
         activeWorkspace={activeWorkspace}
         currentView={currentView}
+        activeBoardTitle={activeBoard?.name}
         onSwitchUser={handleSwitchUser}
         onSwitchWorkspace={handleSwitchWorkspace}
-        onSetView={setCurrentView}
+        onSetView={handleSetView}
         onCreateWorkspaceClick={() => {
           setCreateModalType("workspace");
           setShowCreateModal(true);
@@ -673,34 +721,36 @@ export default function App() {
 
       {/* Main View Area */}
       <main className="flex-1 overflow-hidden">
-        {currentView === "dashboard" || !activeBoard ? (
+        {currentView === "dashboard" ? (
           /* Dashboard view cockpit */
-          <Dashboard
-            stats={dashboardStats}
-            boards={boards}
-            currentUser={currentUser}
-            onSelectBoard={(boardId) => {
-              setActiveBoardId(boardId);
-              setCurrentView("board");
-            }}
-            onToggleFavorite={handleToggleFavorite}
-            onEditBoardClick={(board) => {
-              setEditBoardData(board);
-              setCreateModalType("edit-board");
-              setShowCreateModal(true);
-            }}
-            onDeleteBoard={handleDeleteBoard}
-            onCreateBoardClick={() => {
-              if (workspaces.length === 0) {
-                setCreateModalType("workspace");
+          <div className="h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] overflow-y-auto pb-20 md:pb-8">
+            <Dashboard
+              stats={dashboardStats}
+              boards={boards}
+              currentUser={currentUser}
+              onSelectBoard={(boardId) => {
+                setActiveBoardId(boardId);
+                setCurrentView("board");
+              }}
+              onToggleFavorite={handleToggleFavorite}
+              onEditBoardClick={(board) => {
+                setEditBoardData(board);
+                setCreateModalType("edit-board");
                 setShowCreateModal(true);
-              } else {
-                setCreateModalType("board");
-                setShowCreateModal(true);
-              }
-            }}
-          />
-        ) : (
+              }}
+              onDeleteBoard={handleDeleteBoard}
+              onCreateBoardClick={() => {
+                if (workspaces.length === 0) {
+                  setCreateModalType("workspace");
+                  setShowCreateModal(true);
+                } else {
+                  setCreateModalType("board");
+                  setShowCreateModal(true);
+                }
+              }}
+            />
+          </div>
+        ) : activeBoard ? (
           /* Kanban Board viewport */
           <BoardView
             board={activeBoard}
@@ -716,6 +766,28 @@ export default function App() {
             onCardClick={setActiveCardId}
             onMoveCard={handleMoveCard}
           />
+        ) : (
+          /* Empty board state when no board exists in this workspace */
+          <div className="flex flex-col items-center justify-center h-[calc(100vh-4rem)] p-6 text-center bg-[#090d16]">
+            <div className="bg-slate-900/70 backdrop-blur-2xl p-8 rounded-3xl border border-white/[0.1] shadow-2xl max-w-md w-full space-y-4 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-indigo-500/15 text-indigo-400 border border-indigo-500/30 flex items-center justify-center mx-auto shadow-inner">
+                <Trello className="w-7 h-7" />
+              </div>
+              <h2 className="text-xl font-display font-extrabold text-white">No Boards in this Workspace</h2>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Start tracking tasks by creating an interactive Kanban board for this course or project.
+              </p>
+              <button
+                onClick={() => {
+                  setCreateModalType("board");
+                  setShowCreateModal(true);
+                }}
+                className="w-full py-3 px-5 bg-gradient-to-r from-indigo-600 to-sky-500 hover:from-indigo-500 hover:to-sky-400 text-white font-bold rounded-2xl text-xs shadow-lg shadow-indigo-500/25 transition cursor-pointer"
+              >
+                + Create Project Board
+              </button>
+            </div>
+          </div>
         )}
       </main>
 

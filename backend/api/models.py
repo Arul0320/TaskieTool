@@ -68,7 +68,7 @@ class Board(models.Model):
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='boards')
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
-    is_favorite = models.BooleanField()
+    is_favorite = models.BooleanField(default=False)
     academic_year = models.CharField(max_length=9, blank=True, null=True)  # e.g., "2023-2024"
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -103,7 +103,7 @@ class Achievement(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
-    is_achieved = models.BooleanField()
+    is_achieved = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -121,7 +121,7 @@ class Card(models.Model):
     status = models.CharField(max_length=20, choices=ACTIVITY_STATUS_CHOICES)
     start_date = models.DateField()
     end_date = models.DateField()
-    hours_spent = models.FloatField(validators=[MinValueValidator(0)])
+    hours_spent = models.FloatField(default=0.0, validators=[MinValueValidator(0)])
     location = models.CharField(max_length=255, blank=True, null=True)
     mentor = models.CharField(max_length=255, blank=True, null=True)
     achievements = models.ManyToManyField(Achievement, related_name='cards', blank=True)

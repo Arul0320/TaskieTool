@@ -1,0 +1,62 @@
+services:
+  # ==========================================
+  # Django REST Framework Backend
+  # ==========================================
+  api-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: taskietool-backend
+    restart: unless-stopped
+    environment:
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-taskietool-super-secret-key-change-in-prod}
+      - DEBUG=${DEBUG:-False}
+      - ALLOWED_HOSTS=*
+      - CORS_ALLOW_ALL_ORIGINS=True
+      - DATA_DIR=/app/data
+    volumes:
+      - backend-data:/app/data
+      - backend-media:/app/media
+    expose:
+      - "8000"
+
+  # ==========================================
+  # React + Node.js Express Frontend
+  # ==========================================
+  web-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: taskietool-frontend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DB_PATH=/app/data/db.json
+    volumes:
+      - frontend-data:/app/data
+    expose:
+      - "3000"
+    depends_on:
+      - api-backend
+
+  # ==========================================
+  # Nginx Reverse Proxy (Port 80/443 Gateway)
+  # ==========================================
+  reverse-proxy:
+    image: nginx:alpine
+    container_name: taskietool-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - web-frontend
+      - api-backend
+
+volumes:
+  backend-data:
+  backend-media:
+  frontend-data:
+

@@ -13,7 +13,9 @@ import {
   Tag,
   Calendar,
   AlertCircle,
-  FileText
+  FileText,
+  Sparkles,
+  ChevronDown
 } from "lucide-react";
 import { Card, User, List, CardPriority } from "../types";
 
@@ -159,7 +161,8 @@ export default function CardModal({
       .split(" ")
       .map(n => n[0])
       .join("")
-      .toUpperCase();
+      .toUpperCase()
+      .substring(0, 2);
   };
 
   // Date styling check
@@ -172,33 +175,37 @@ export default function CardModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/65 flex items-center justify-center p-4 z-50 overflow-y-auto backdrop-blur-xs animate-in fade-in duration-200">
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-2.5 sm:p-6 z-50 overflow-y-auto backdrop-blur-md animate-in fade-in duration-200">
       {/* Modal Card frame */}
-      <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden border border-slate-100 flex flex-col md:flex-row max-h-[90vh] animate-in zoom-in-95 duration-200">
+      <div className="bg-[#0f172a]/95 backdrop-blur-2xl rounded-3xl w-full max-w-4xl shadow-2xl border border-white/[0.12] flex flex-col md:flex-row max-h-[92vh] overflow-y-auto md:overflow-hidden animate-in zoom-in-95 duration-200 text-slate-100">
 
         {/* Left Side Pane: Details, Checklists, Comments, Activities */}
-        <div className="flex-1 p-6 md:p-8 overflow-y-auto space-y-6">
+        <div className="flex-1 p-5 sm:p-6 md:p-8 md:overflow-y-auto space-y-6">
 
           {/* Header Close & Navigation Tabs Row */}
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <div className="flex bg-slate-100 p-1 rounded-xl text-xs font-semibold text-slate-500">
+          <div className="flex items-center justify-between border-b border-white/[0.08] pb-4">
+            <div className="flex bg-white/[0.04] p-1 rounded-xl text-xs font-semibold border border-white/[0.06]">
               <button
                 onClick={() => setActiveTab("details")}
                 className={`px-4 py-1.5 rounded-lg transition cursor-pointer ${
-                  activeTab === "details" ? "bg-white text-slate-800 shadow-sm" : "hover:text-slate-800"
+                  activeTab === "details"
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                    : "text-slate-400 hover:text-white"
                 }`}
               >
-                Task Information
+                Task Details
               </button>
               <button
                 onClick={() => setActiveTab("activity")}
-                className={`px-4 py-1.5 rounded-lg transition flex items-center gap-1 cursor-pointer ${
-                  activeTab === "activity" ? "bg-white text-slate-800 shadow-sm" : "hover:text-slate-800"
+                className={`px-4 py-1.5 rounded-lg transition flex items-center gap-1.5 cursor-pointer ${
+                  activeTab === "activity"
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                    : "text-slate-400 hover:text-white"
                 }`}
               >
                 <History className="w-3.5 h-3.5" />
-                <span>Task History</span>
-                <span className="text-[10px] bg-slate-200 text-slate-500 px-1.5 py-0.25 rounded-full font-bold">
+                <span>History</span>
+                <span className="text-[10px] bg-white/[0.1] text-indigo-300 px-1.5 py-0.2 rounded-full font-bold">
                   {card.activityHistory?.length || 0}
                 </span>
               </button>
@@ -206,7 +213,7 @@ export default function CardModal({
 
             <button
               onClick={onClose}
-              className="p-1.5 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 transition cursor-pointer"
+              className="p-1.5 hover:bg-white/[0.08] rounded-xl text-slate-400 hover:text-white transition cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -225,11 +232,11 @@ export default function CardModal({
                       onBlur={handleSaveTitle}
                       onKeyDown={(e) => e.key === "Enter" && handleSaveTitle()}
                       autoFocus
-                      className="text-xl font-sans font-bold text-slate-800 border-b-2 border-indigo-600 w-full focus:outline-none py-1"
+                      className="bg-slate-800 border border-indigo-500 rounded-xl px-3 py-1.5 text-base font-display font-bold text-white w-full focus:outline-none"
                     />
                     <button
                       onClick={handleSaveTitle}
-                      className="px-3 py-1 bg-indigo-600 text-white rounded text-xs font-bold cursor-pointer"
+                      className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition cursor-pointer"
                     >
                       Save
                     </button>
@@ -237,442 +244,400 @@ export default function CardModal({
                 ) : (
                   <h2
                     onClick={() => setIsEditingTitle(true)}
-                    className="text-xl font-sans font-bold text-slate-800 cursor-pointer hover:bg-slate-50 px-2 py-1 -ml-2 rounded transition"
+                    className="text-lg md:text-xl font-display font-bold text-white hover:bg-white/[0.04] p-1.5 -ml-1.5 rounded-xl cursor-pointer transition"
+                    title="Click to edit title"
                   >
                     {card.title}
                   </h2>
                 )}
-                <p className="text-[11px] text-slate-400 font-medium">
-                  In Column: <span className="font-bold text-slate-600">{(lists.find(l => l.id === card.listId))?.name || "Pipeline"}</span>
+                <p className="text-xs text-slate-400">
+                  in column <span className="font-semibold text-indigo-400">{lists.find(l => l.id === card.listId)?.name || "Default"}</span>
                 </p>
               </div>
 
-              {/* Task Description Edit Section */}
+              {/* Labels Section */}
               <div className="space-y-2">
-                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Description</h3>
+                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  <Tag className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>Labels</span>
+                </div>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {(card.labels || []).map((lbl) => (
+                    <span
+                      key={lbl}
+                      className="group flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30"
+                    >
+                      <span>{lbl}</span>
+                      <button
+                        onClick={() => handleRemoveLabel(lbl)}
+                        className="hover:text-rose-400 transition cursor-pointer"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+
+                  {/* Add tag form */}
+                  <form onSubmit={handleAddCustomLabel} className="inline-flex items-center">
+                    <input
+                      type="text"
+                      placeholder="+ Add label"
+                      value={newCustomLabel}
+                      onChange={(e) => setNewCustomLabel(e.target.value)}
+                      className="bg-white/[0.04] border border-white/[0.1] focus:border-indigo-500 rounded-lg px-2.5 py-1 text-xs text-white placeholder-slate-500 focus:outline-none w-24 focus:w-32 transition-all"
+                    />
+                  </form>
+                </div>
+              </div>
+
+              {/* Description Section */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    <FileText className="w-3.5 h-3.5 text-indigo-400" />
+                    <span>Description</span>
+                  </div>
+                  {!isEditingDesc && (
+                    <button
+                      onClick={() => setIsEditingDesc(true)}
+                      className="text-xs font-semibold text-indigo-400 hover:text-indigo-300 cursor-pointer"
+                    >
+                      Edit
+                    </button>
+                  )}
+                </div>
+
                 {isEditingDesc ? (
                   <div className="space-y-2">
                     <textarea
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       rows={4}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition"
-                      placeholder="Add a detailed description for this task..."
+                      placeholder="Add detailed task notes or specifications..."
+                      className="w-full bg-slate-800/90 border border-indigo-500 rounded-xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none"
                     />
-                    <div className="flex gap-2 justify-end">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleSaveDesc}
+                        className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition cursor-pointer"
+                      >
+                        Save Notes
+                      </button>
                       <button
                         onClick={() => {
                           setDescription(card.description);
                           setIsEditingDesc(false);
                         }}
-                        className="px-3 py-1.5 text-xs font-semibold text-slate-500 hover:bg-slate-100 rounded-lg transition cursor-pointer"
+                        className="px-3 py-1.5 text-xs text-slate-400 hover:bg-white/[0.06] rounded-xl transition cursor-pointer"
                       >
                         Cancel
-                      </button>
-                      <button
-                        onClick={handleSaveDesc}
-                        className="px-4 py-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition cursor-pointer"
-                      >
-                        Save
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <p
+                  <div
                     onClick={() => setIsEditingDesc(true)}
-                    className="text-sm text-slate-600 bg-slate-50 hover:bg-slate-100/70 p-3.5 rounded-xl cursor-pointer transition whitespace-pre-wrap min-h-[3.5rem]"
+                    className="bg-white/[0.03] border border-white/[0.06] hover:border-white/[0.12] rounded-xl p-3.5 text-xs text-slate-300 cursor-pointer min-h-[70px] leading-relaxed transition"
                   >
-                    {card.description || "Click to add a detailed description for this task..."}
-                  </p>
+                    {card.description ? (
+                      <p className="whitespace-pre-line">{card.description}</p>
+                    ) : (
+                      <span className="text-slate-500 italic">No description provided. Click here to write notes...</span>
+                    )}
+                  </div>
                 )}
               </div>
 
-              {/* Checklist Subtask Section */}
-              <div className="space-y-4 pt-2">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                    <CheckSquare className="w-4 h-4 text-slate-400" />
-                    <span>Subtasks Checklist</span>
-                  </h3>
-                  <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
-                    {completedChecklist} / {totalChecklist} Done
-                  </span>
-                </div>
-
-                {/* Checklist Progress Slider */}
-                {totalChecklist > 0 && (
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-xs font-bold text-indigo-600">
-                      <span>Task Completion Ratio</span>
-                      <span>{checklistPercentage}%</span>
-                    </div>
-                    <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                      <div
-                        className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${checklistPercentage}%` }}
-                      ></div>
-                    </div>
+              {/* Subtasks / Checklist Section */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    <CheckSquare className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Checklist ({completedChecklist}/{totalChecklist})</span>
                   </div>
-                )}
-
-                {/* Subtask listing */}
-                <div className="space-y-2">
-                  {card.checklist && card.checklist.length > 0 ? (
-                    card.checklist.map((item) => (
-                      <div
-                        key={item.id}
-                        className="flex items-center justify-between gap-3 p-2 bg-slate-50/50 hover:bg-slate-50 rounded-xl transition border border-transparent hover:border-slate-100"
-                      >
-                        <label className="flex items-center gap-3 cursor-pointer text-sm font-medium text-slate-700 flex-grow py-0.5">
-                          <input
-                            type="checkbox"
-                            checked={item.isDone}
-                            onChange={(e) => onToggleChecklistItem(card.id, item.id, e.target.checked)}
-                            className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
-                          />
-                          <span className={`${item.isDone ? "line-through text-slate-400" : "text-slate-700"}`}>
-                            {item.text}
-                          </span>
-                        </label>
-                        <button
-                          onClick={() => onDeleteChecklistItem(card.id, item.id)}
-                          className="text-slate-300 hover:text-rose-500 p-1 hover:bg-white rounded transition cursor-pointer"
-                          title="Delete Subtask"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-xs text-slate-400 italic">No checklist subtasks. Add some below to track progress.</p>
+                  {totalChecklist > 0 && (
+                    <span className="text-xs font-mono font-bold text-emerald-400">{checklistPercentage}%</span>
                   )}
                 </div>
 
-                {/* Add Subtask Form */}
+                {/* Progress bar */}
+                {totalChecklist > 0 && (
+                  <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                    <div
+                      className="bg-gradient-to-r from-indigo-500 to-emerald-400 h-1.5 rounded-full transition-all duration-300"
+                      style={{ width: `${checklistPercentage}%` }}
+                    ></div>
+                  </div>
+                )}
+
+                {/* Checklist Items list */}
+                <div className="space-y-1.5">
+                  {(card.checklist || []).map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between p-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.04] transition group"
+                    >
+                      <label className="flex items-center gap-2.5 cursor-pointer flex-1 text-xs">
+                        <input
+                          type="checkbox"
+                          checked={item.isDone}
+                          onChange={(e) => onToggleChecklistItem(card.id, item.id, e.target.checked)}
+                          className="w-4 h-4 rounded border-slate-700 bg-slate-800 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                        />
+                        <span className={`transition ${item.isDone ? "line-through text-slate-500" : "text-slate-200"}`}>
+                          {item.text}
+                        </span>
+                      </label>
+                      <button
+                        onClick={() => onDeleteChecklistItem(card.id, item.id)}
+                        className="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-rose-400 rounded transition cursor-pointer"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Add Checklist form */}
                 <form onSubmit={handleAddChecklistSubmit} className="flex gap-2">
                   <input
                     type="text"
-                    placeholder="Add a new subtask..."
+                    placeholder="Add an item to checklist..."
                     value={newChecklistText}
                     onChange={(e) => setNewChecklistText(e.target.value)}
-                    required
-                    className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition"
+                    className="flex-1 bg-white/[0.04] border border-white/[0.08] focus:border-indigo-500 rounded-xl px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none"
                   />
                   <button
                     type="submit"
-                    className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1 transition cursor-pointer"
+                    className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition cursor-pointer"
                   >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Add</span>
+                    Add
                   </button>
                 </form>
               </div>
 
-              {/* Attachments Upload Section */}
-              <div className="space-y-4 pt-2">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                    <Paperclip className="w-4 h-4 text-slate-400" />
-                    <span>Attachments</span>
-                  </h3>
-                  <label className={`cursor-pointer px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-[10px] font-bold text-slate-600 flex items-center gap-1.5 transition ${uploading ? "opacity-50" : ""}`}>
+              {/* Attachments Section */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    <Paperclip className="w-3.5 h-3.5 text-sky-400" />
+                    <span>Attachments ({(card.attachments || []).length})</span>
+                  </div>
+                  <label className="flex items-center gap-1 text-xs font-semibold text-sky-400 hover:text-sky-300 cursor-pointer">
                     <Plus className="w-3.5 h-3.5" />
                     <span>{uploading ? "Uploading..." : "Upload File"}</span>
-                    <input
-                      type="file"
-                      onChange={handleFileChange}
-                      className="hidden"
-                      disabled={uploading}
-                    />
+                    <input type="file" onChange={handleFileChange} className="hidden" disabled={uploading} />
                   </label>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {card.attachments && card.attachments.length > 0 ? (
-                    card.attachments.map((attach) => (
-                      <div
-                        key={attach.id}
-                        className="flex items-center gap-3 p-2 bg-slate-50 hover:bg-slate-100/70 border border-slate-200/50 rounded-xl overflow-hidden group justify-between"
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {(card.attachments || []).map((att) => (
+                    <div
+                      key={att.id}
+                      className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] transition text-xs"
+                    >
+                      <a
+                        href={att.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-2 truncate text-slate-300 hover:text-white"
                       >
-                        <div className="flex items-center gap-2.5 min-w-0 flex-grow">
-                          <div className="bg-indigo-100 text-indigo-600 p-2 rounded-lg flex-shrink-0">
-                            <FileText className="w-4 h-4" />
-                          </div>
-                          <div className="min-w-0">
-                            <a
-                              href={attach.url}
-                              download={attach.name}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="text-xs font-bold text-slate-700 hover:text-indigo-600 hover:underline truncate block"
-                            >
-                              {attach.name}
-                            </a>
-                            <span className="text-[9px] text-slate-400 block font-semibold uppercase">
-                              {new Date(attach.uploadedAt).toLocaleDateString()}
-                            </span>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => onDeleteAttachment(card.id, attach.id)}
-                          className="text-slate-300 hover:text-rose-500 p-1.5 hover:bg-white rounded transition cursor-pointer"
-                          title="Remove Attachment"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-xs text-slate-400 italic sm:col-span-2">No attachments uploaded yet.</p>
-                  )}
+                        <Paperclip className="w-3.5 h-3.5 text-sky-400 flex-shrink-0" />
+                        <span className="truncate font-medium">{att.name}</span>
+                      </a>
+                      <button
+                        onClick={() => onDeleteAttachment(card.id, att.id)}
+                        className="p-1 text-slate-500 hover:text-rose-400 rounded transition cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              {/* Comments Timeline Section */}
-              <div className="space-y-4 pt-2">
-                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
-                  <MessageSquare className="w-4 h-4 text-slate-400" />
-                  <span>Discussion ({card.comments?.length || 0})</span>
-                </h3>
-
-                {/* Timeline and listings */}
-                <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
-                  {card.comments && card.comments.length > 0 ? (
-                    card.comments.map((comment) => {
-                      const commenter = getUserDetails(comment.userId);
-                      return (
-                        <div key={comment.id} className="flex gap-3 text-xs items-start animate-in fade-in duration-100">
-                          <div
-                            className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-white text-[10px] flex-shrink-0"
-                            style={{ backgroundColor: commenter.avatarColor }}
-                          >
-                            {getInitials(commenter.username || "Guest")}
-                          </div>
-                          <div className="bg-slate-50 hover:bg-slate-100/50 p-3 rounded-2xl flex-grow space-y-1 relative group border border-slate-100">
-                            <div className="flex justify-between items-center">
-                              <span className="font-bold text-slate-800">{commenter.username}</span>
-                              <span className="text-[10px] text-slate-400">
-                                {new Date(comment.createdAt).toLocaleDateString()} {new Date(comment.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                              </span>
-                            </div>
-                            <p className="text-slate-600 leading-relaxed text-sm whitespace-pre-wrap">{comment.text}</p>
-
-                            {(currentUser?.id === comment.userId || currentUser?.role === "Teacher") && (
-                              <button
-                                onClick={() => onDeleteComment(card.id, comment.id)}
-                                className="absolute right-2.5 bottom-2.5 text-slate-300 hover:text-rose-500 p-1 rounded hover:bg-white opacity-0 group-hover:opacity-100 transition duration-150 cursor-pointer"
-                                title="Delete Comment"
-                              >
-                                <Trash2 className="w-3 h-3" />
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <p className="text-xs text-slate-400 italic">No comments yet. Start a discussion below.</p>
-                  )}
+              {/* Comments Section */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  <MessageSquare className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>Discussion ({(card.comments || []).length})</span>
                 </div>
 
-                {/* Post comment form */}
+                {/* Comment Input */}
                 <form onSubmit={handleAddCommentSubmit} className="space-y-2">
                   <textarea
                     rows={2}
+                    placeholder="Write a comment or update..."
                     value={newCommentText}
                     onChange={(e) => setNewCommentText(e.target.value)}
-                    placeholder="Write a comment..."
-                    required
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition"
+                    className="w-full bg-white/[0.04] border border-white/[0.08] focus:border-indigo-500 rounded-xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none"
                   />
                   <div className="flex justify-end">
                     <button
                       type="submit"
-                      className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-md shadow-indigo-600/10 hover:shadow-indigo-600/20 active:scale-[0.98] transition cursor-pointer"
+                      disabled={!newCommentText.trim()}
+                      className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white text-xs font-bold rounded-xl transition cursor-pointer shadow-sm"
                     >
                       Post Comment
                     </button>
                   </div>
                 </form>
+
+                {/* Comment Stream */}
+                <div className="space-y-2.5 max-h-48 overflow-y-auto">
+                  {(card.comments || []).map((comm) => {
+                    const author = getUserDetails(comm.userId);
+                    return (
+                      <div
+                        key={comm.id}
+                        className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.05] space-y-1.5 text-xs"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="w-5 h-5 rounded-md flex items-center justify-center text-[9px] font-bold text-white"
+                              style={{ backgroundColor: author.avatarColor }}
+                            >
+                              {getInitials(author.username)}
+                            </div>
+                            <span className="font-semibold text-slate-200">{author.username}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] text-slate-500">
+                              {new Date(comm.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                            </span>
+                            <button
+                              onClick={() => onDeleteComment(card.id, comm.id)}
+                              className="text-slate-500 hover:text-rose-400 transition cursor-pointer"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </div>
+                        <p className="text-slate-300 pl-7 whitespace-pre-line">{comm.text}</p>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </>
           ) : (
-            /* Task History Activity Stream Tab */
-            <div className="space-y-4">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
-                <History className="w-4 h-4 text-slate-400" />
-                <span>Task Activity History</span>
-              </h3>
-
-              <div className="relative border-l border-slate-200 pl-4 space-y-4 max-h-[500px] overflow-y-auto pr-1 py-2">
-                {card.activityHistory && card.activityHistory.length > 0 ? (
-                  card.activityHistory.map((act) => {
-                    const actor = getUserDetails(act.userId);
-                    return (
-                      <div key={act.id} className="relative text-xs">
-                        <div
-                          className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full border-2 border-white ring-4 ring-white"
-                          style={{ backgroundColor: actor.avatarColor }}
-                        ></div>
-                        <div className="space-y-0.5">
-                          <p className="text-slate-600">
-                            <span className="font-bold text-slate-800">{actor.username}</span> {act.text}
-                          </p>
-                          <span className="text-[10px] text-slate-400">
-                            {new Date(act.createdAt).toLocaleString()}
-                          </span>
-                        </div>
+            /* Activity History Tab View */
+            <div className="space-y-3">
+              <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                Audit Trail & History
+              </div>
+              <div className="space-y-2 max-h-[500px] overflow-y-auto">
+                {(card.activityHistory || []).map((act) => {
+                  const actor = getUserDetails(act.userId);
+                  return (
+                    <div
+                      key={act.id}
+                      className="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04] text-xs"
+                    >
+                      <div
+                        className="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
+                        style={{ backgroundColor: actor.avatarColor }}
+                      >
+                        {getInitials(actor.username)}
                       </div>
-                    );
-                  })
-                ) : (
-                  <p className="text-xs text-slate-400 italic">No activity logs recorded.</p>
-                )}
+                      <div className="flex-1 space-y-0.5">
+                        <p className="text-slate-300">
+                          <span className="font-semibold text-white">{actor.username}</span> {act.text}
+                        </p>
+                        <p className="text-[10px] text-slate-500">
+                          {new Date(act.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
+
         </div>
 
-        {/* Right Side Pane: Metadata Properties Selectors */}
-        <div className="w-full md:w-80 bg-slate-50 border-t md:border-t-0 md:border-l border-slate-100 p-6 md:p-8 space-y-6 flex-shrink-0">
+        {/* Right Sidebar Pane: Controls, Selectors, and Card Actions */}
+        <div className="w-full md:w-72 bg-slate-900/90 p-5 sm:p-6 md:p-8 border-t md:border-t-0 md:border-l border-white/[0.08] space-y-5 flex flex-col justify-between md:overflow-y-auto flex-shrink-0">
+          <div className="space-y-4">
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Task Controls</h3>
 
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-200 pb-2">Task Parameters</h3>
+            {/* Column Selector */}
+            <div className="space-y-1">
+              <label className="text-xs text-slate-400">Column</label>
+              <select
+                value={card.listId}
+                onChange={(e) => onMoveCard(card.id, e.target.value, 0)}
+                className="w-full bg-white/[0.04] border border-white/[0.1] rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
+              >
+                {lists.map((l) => (
+                  <option key={l.id} value={l.id} className="bg-slate-900 text-white">
+                    {l.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          {/* Workflow status / Column select */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-500">Column</label>
-            <select
-              value={card.listId}
-              onChange={(e) => onMoveCard(card.id, e.target.value, 0)}
-              className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs text-slate-700 font-semibold focus:outline-none focus:border-indigo-500 transition shadow-xs cursor-pointer"
-            >
-              {lists.map(list => (
-                <option key={list.id} value={list.id}>{list.name}</option>
-              ))}
-            </select>
-          </div>
+            {/* Priority Selector */}
+            <div className="space-y-1">
+              <label className="text-xs text-slate-400">Priority</label>
+              <select
+                value={card.priority || "Medium"}
+                onChange={(e) => onUpdateCard(card.id, { priority: e.target.value as CardPriority })}
+                className="w-full bg-white/[0.04] border border-white/[0.1] rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
+              >
+                <option value="Urgent" className="bg-slate-900 text-rose-300">Urgent</option>
+                <option value="High" className="bg-slate-900 text-amber-300">High</option>
+                <option value="Medium" className="bg-slate-900 text-sky-300">Medium</option>
+                <option value="Low" className="bg-slate-900 text-emerald-300">Low</option>
+              </select>
+            </div>
 
-          {/* Assignee selection */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-500 flex items-center gap-1.5">
-              <UserIcon className="w-3.5 h-3.5 text-slate-400" />
-              <span>Assignee</span>
-            </label>
-            <select
-              value={card.assigneeId || ""}
-              onChange={(e) => onUpdateCard(card.id, { assigneeId: e.target.value })}
-              className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs text-slate-700 font-semibold focus:outline-none focus:border-indigo-500 transition shadow-xs cursor-pointer"
-            >
-              <option value="">Unassigned</option>
-              {users.map(u => (
-                <option key={u.id} value={u.id}>{u.username} ({u.role})</option>
-              ))}
-            </select>
-          </div>
+            {/* Assignee Selector */}
+            <div className="space-y-1">
+              <label className="text-xs text-slate-400">Assignee</label>
+              <select
+                value={card.assigneeId || ""}
+                onChange={(e) => onUpdateCard(card.id, { assigneeId: e.target.value })}
+                className="w-full bg-white/[0.04] border border-white/[0.1] rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
+              >
+                <option value="" className="bg-slate-900 text-slate-400">Unassigned</option>
+                {users.map((u) => (
+                  <option key={u.id} value={u.id} className="bg-slate-900 text-white">
+                    {u.username} ({u.role})
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          {/* Priority selection */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-500">Priority Level</label>
-            <select
-              value={card.priority || "Medium"}
-              onChange={(e) => onUpdateCard(card.id, { priority: e.target.value as CardPriority })}
-              className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs text-slate-700 font-semibold focus:outline-none focus:border-indigo-500 transition shadow-xs cursor-pointer"
-            >
-              <option value="Low">Low Priority</option>
-              <option value="Medium">Medium Priority</option>
-              <option value="High">High Priority</option>
-              <option value="Urgent">Urgent Priority</option>
-            </select>
-          </div>
-
-          {/* Due date picker */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-500 flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-slate-400" />
-              <span>Due Date</span>
-            </label>
-            <div className="relative">
+            {/* Due Date Picker */}
+            <div className="space-y-1">
+              <label className="text-xs text-slate-400">Due Date</label>
               <input
                 type="date"
                 value={card.dueDate || ""}
                 onChange={(e) => onUpdateCard(card.id, { dueDate: e.target.value })}
-                className={`w-full bg-white border rounded-xl p-2.5 text-xs text-slate-700 font-semibold focus:outline-none focus:border-indigo-500 transition shadow-xs ${
-                  isDateOverdue() ? "border-rose-300 text-rose-600 bg-rose-50/10" : "border-slate-200"
-                }`}
+                className="w-full bg-white/[0.04] border border-white/[0.1] rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
               />
-              {isDateOverdue() && (
-                <span className="text-[10px] font-bold text-rose-500 mt-1 flex items-center gap-1">
-                  <AlertCircle className="w-3 h-3" />
-                  <span>Task is currently overdue!</span>
-                </span>
-              )}
             </div>
           </div>
 
-          {/* Dynamic Labels / Tags Manager */}
-          <div className="space-y-2.5 pt-2">
-            <label className="text-xs font-bold text-slate-500 flex items-center gap-1.5">
-              <Tag className="w-3.5 h-3.5 text-slate-400" />
-              <span>Labels & Tags</span>
-            </label>
-
-            {/* Existing dynamic labels on card */}
-            <div className="flex flex-wrap gap-1.5 min-h-12 p-2 bg-white border border-slate-200 rounded-xl shadow-xs">
-              {card.labels && card.labels.length > 0 ? (
-                card.labels.map((lbl) => (
-                  <span
-                    key={lbl}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-200"
-                  >
-                    <span>{lbl}</span>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveLabel(lbl)}
-                      className="hover:text-rose-600 transition cursor-pointer ml-0.5"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                ))
-              ) : (
-                <p className="text-[11px] text-slate-400 italic py-1">No labels attached.</p>
-              )}
-            </div>
-
-            {/* Custom label input */}
-            <form onSubmit={handleAddCustomLabel} className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Add custom label..."
-                value={newCustomLabel}
-                onChange={(e) => setNewCustomLabel(e.target.value)}
-                className="flex-1 bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:border-indigo-500 transition shadow-xs"
-              />
-              <button
-                type="submit"
-                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1 transition cursor-pointer"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Add</span>
-              </button>
-            </form>
-          </div>
-
-          {/* Delete card button */}
-          <div className="pt-4 border-t border-slate-200">
+          {/* Delete Task Button */}
+          <div className="pt-4 border-t border-white/[0.08]">
             <button
               onClick={() => {
-                if (confirm(`Are you sure you want to permanently delete task '${card.title}'?`)) {
+                if (confirm(`Delete task '${card.title}'?`)) {
                   onDeleteCard(card.id);
+                  onClose();
                 }
               }}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 rounded-xl text-xs font-bold transition border border-rose-100 cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-bold transition cursor-pointer"
             >
-              <Trash2 className="w-4 h-4" />
-              <span>Delete Task Card</span>
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Delete Task</span>
             </button>
           </div>
-
         </div>
 
       </div>

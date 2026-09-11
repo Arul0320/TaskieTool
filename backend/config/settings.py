@@ -13,7 +13,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-dev-key-change-in-p
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = [h.strip() for h in os.getenv('ALLOWED_HOSTS', '*').split(',')] if os.getenv('ALLOWED_HOSTS') else ['*']
 
 # Application definition
 INSTALLED_APPS = [
@@ -31,6 +31,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -60,11 +61,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+DATA_DIR = Path(os.getenv('DATA_DIR', BASE_DIR))
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+
 # Database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': DATA_DIR / 'db.sqlite3',
     }
 }
 
@@ -118,6 +122,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://frontend-phi-amber.vercel.app"
 ]
 
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 # Spectacular Configuration
@@ -125,7 +130,4 @@ SPECTACULAR_SETTINGS = {
     'TITLE': 'TaskieTool API',
     'DESCRIPTION': 'Student Activity Tracking System API',
     'VERSION': '1.0.0',
-}
-ALLOWED_HOSTS = [
-    "your-backend.onrender.com",
-]
+}

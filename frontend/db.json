@@ -9,9 +9,129 @@
       "joinedAt": "2026-08-19T17:25:30.048Z"
     }
   ],
-  "workspaces": [],
-  "boards": [],
-  "lists": [],
-  "cards": [],
-  "globalLogs": []
+  "workspaces": [
+    {
+      "id": "workspace-1789041625252",
+      "name": "Python Basic Code",
+      "description": "coding questions",
+      "createdBy": "user-1787160330047",
+      "members": [
+        "user-1787160330047"
+      ]
+    }
+  ],
+  "boards": [
+    {
+      "id": "board-1789041656639",
+      "workspaceId": "workspace-1789041625252",
+      "name": "Python Code",
+      "description": "codding",
+      "isFavorite": false,
+      "listOrder": [
+        "list-board-1789041656639-1-1789041656639",
+        "list-board-1789041656639-0-1789041656639",
+        "list-board-1789041656639-2-1789041656639"
+      ]
+    }
+  ],
+  "lists": [
+    {
+      "id": "list-board-1789041656639-0-1789041656639",
+      "boardId": "board-1789041656639",
+      "name": "To Do",
+      "order": 1
+    },
+    {
+      "id": "list-board-1789041656639-1-1789041656639",
+      "boardId": "board-1789041656639",
+      "name": "In Progress",
+      "order": 0
+    },
+    {
+      "id": "list-board-1789041656639-2-1789041656639",
+      "boardId": "board-1789041656639",
+      "name": "Done",
+      "order": 2
+    }
+  ],
+  "cards": [
+    {
+      "id": "card-1789041684586",
+      "listId": "list-board-1789041656639-0-1789041656639",
+      "title": "Odd and Even",
+      "description": "",
+      "dueDate": "",
+      "priority": "High",
+      "assigneeId": "user-1787160330047",
+      "labels": [],
+      "checklist": [],
+      "comments": [],
+      "attachments": [],
+      "activityHistory": [
+        {
+          "id": "act-1789041684586",
+          "text": "Task created by Sam",
+          "userId": "user-1787160330047",
+          "createdAt": "2026-09-10T12:01:24.586Z"
+        },
+        {
+          "id": "act-1789041915352-th78",
+          "text": "updated priority to High",
+          "userId": "user-1787160330047",
+          "createdAt": "2026-09-10T12:05:15.352Z"
+        },
+        {
+          "id": "act-1789041927832-opiq",
+          "text": "assigned task to Sam",
+          "userId": "user-1787160330047",
+          "createdAt": "2026-09-10T12:05:27.833Z"
+        }
+      ],
+      "order": 0
+    }
+  ],
+  "globalLogs": [
+    {
+      "id": "log-1789045165130",
+      "text": "deleted task 'Verification Task Alpha'",
+      "boardName": "Python Code",
+      "userName": "Sam",
+      "createdAt": "2026-09-10T12:59:25.131Z"
+    },
+    {
+      "id": "log-1789045161885",
+      "text": "deleted task 'New Test Task'",
+      "boardName": "Python Code",
+      "userName": "Sam",
+      "createdAt": "2026-09-10T12:59:21.886Z"
+    },
+    {
+      "id": "log-1789043272682",
+      "text": "created task 'Verification Task Alpha' in column 'To Do'",
+      "boardName": "Python Code",
+      "userName": "Sam",
+      "createdAt": "2026-09-10T12:27:52.682Z"
+    },
+    {
+      "id": "log-1789042584875",
+      "text": "created task 'New Test Task' in column 'To Do'",
+      "boardName": "Python Code",
+      "userName": "Sam",
+      "createdAt": "2026-09-10T12:16:24.875Z"
+    },
+    {
+      "id": "log-1789041684586",
+      "text": "created task 'Odd and Even' in column 'To Do'",
+      "boardName": "Python Code",
+      "userName": "Sam",
+      "createdAt": "2026-09-10T12:01:24.586Z"
+    },
+    {
+      "id": "log-1789041656639",
+      "text": "created board 'Python Code'",
+      "boardName": "Python Code",
+      "userName": "Sam",
+      "createdAt": "2026-09-10T12:00:56.639Z"
+    }
+  ]
 }
